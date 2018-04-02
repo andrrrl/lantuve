@@ -7,9 +7,16 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "vue": "^2.5.13"
+    "axios": "^0.18.0",
+    "bootstrap-vue": "^2.0.0-rc.2",
+    "lodash": "^4.17.5",
+    "vue": "^2.5.13",
+    "vue-socket.io": "^2.1.1-b",
+    "vuex": "^3.0.1",
+    "vuex-socketio-plugin": "0.0.1"
   },
   "devDependencies": {
+    "@types/events": "^1.2.0",
     "@vue/cli-plugin-babel": "^3.0.0-beta.6",
     "@vue/cli-service": "^3.0.0-beta.6",
     "vue-template-compiler": "^2.5.13"
