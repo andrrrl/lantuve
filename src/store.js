@@ -15,14 +15,21 @@ let _client = null;
 //     isConnected: any
 // }
 
+
 // Store
 export default new Vuex.Store({
-    plugins: [createSocketioPlugin('http://localhost:3000')],
+    plugins: [createSocketioPlugin('http://192.168.4.31:3000' || 'http://localhost:3000')],
     state: {
+        API: [],
         count: 0,
         isConnected: false,
         messages: ['hola...'],
         signal: 'idle'
+    },
+    created: {
+        API() {
+            state.API = ['http://192.168.4.31', '3000']
+        }
     },
     mutations: {
         SOCKET_CONNECT(state, status) {
@@ -56,7 +63,6 @@ export default new Vuex.Store({
         socket_userMessage(context, messages) {
             context.dispatch('newMessage', messages);
             console.log('newMessage', context, messages);
-
         }
     },
     getters: {

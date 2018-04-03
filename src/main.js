@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import VueSocketio from 'vue-socket.io';
-Vue.use(VueSocketio, 'http://localhost:3000');
+Vue.use(VueSocketio, 'http://192.168.4.31:3000');
 
 // Configs
 Vue.config.productionTip = false

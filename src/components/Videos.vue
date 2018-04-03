@@ -23,7 +23,7 @@
         <button class="btn btn-sm btn-success" v-on:click="playlist()">⯈⯈ Play all</button>
         <div class="form-inline">
           <input class="form-control" type="text" placeholder="add new video" v-model="newVideo">        
-          <button v-show="newVideo" class="btn btn-sm btn-success" v-on:click="addVideo()">+</button>
+          <button v-show="newVideo" class="btn btn-sm btn-success" placeholder="youtube vID" v-on:click="addVideo()">+</button>
         </div>
         </div>
         <ul class="list-group" v-if="videos && videos.length">
@@ -68,7 +68,7 @@ export default {
       search: [],
       errors: [],
       term: "",
-      newVideo: "IGUboLZx3Tk",
+      newVideo: "",
       status: "",
       lastUpdated: "",
       currentVideoID: "",
@@ -90,7 +90,7 @@ export default {
   },
   async created() {
     try {
-      const response = await axios.get("http://localhost:3000/api/videos");
+      const response = await axios.get(`http://192.168.4.31:3000/api/videos`);
       this.videos = this.search = response.data;
       this.$store.commit("SOCKET_CONNECT");
     } catch (e) {
@@ -129,7 +129,7 @@ export default {
       try {
         this.currentVideoID = videoID;
         const playing = await axios.get(
-          "http://localhost:3000/api/player/" + videoID + "/play"
+          `http://192.168.4.31:3000/api/player/${videoID}/play`
         );
         this.$store.commit("increment");
         this.$store.commit("SOCKET_USER_MESSAGE");
@@ -144,7 +144,7 @@ export default {
       try {
         if (this.currentVideoID !== "") {
           const pause = await axios.get(
-            "http://localhost:3000/api/player/pause"
+            `http://192.168.4.31:3000/api/player/pause`
           );
           this.$store.commit("SOCKET_USER_MESSAGE");
         } else {
@@ -157,7 +157,9 @@ export default {
     async stop() {
       try {
         this.currentVideoID = null;
-        const stop = await axios.get("http://localhost:3000/api/player/stop");
+        const stop = await axios.get(
+          `http://192.168.4.31:3000/api/player/stop`
+        );
         this.$store.commit("SOCKET_USER_MESSAGE");
       } catch (e) {
         this.errors.push(e);
@@ -166,7 +168,7 @@ export default {
     async playlist() {
       try {
         const playlist = await axios.get(
-          "http://localhost:3000/api/player/playlist"
+          `http://192.168.4.31:3000/api/player/playlist`
         );
         this.$store.commit("SOCKET_USER_MESSAGE");
       } catch (e) {
@@ -179,7 +181,7 @@ export default {
     async addVideo() {
       try {
         const yt = await axios.get(
-          "http://localhost:3000/api/videos/add/" + this.getVideo()
+          `http://192.168.4.31:3000/api/videos/add/${this.getVideo()}`
         );
         this.videos.push(yt.data);
         this.clearFilter(); // add to search array
