@@ -1,7 +1,7 @@
 <template>
 <div class="row">
 <!-- <h5>Videos.vue</h5> -->
-    <div class="col">
+    <div class="col-8">
         <!-- {{ counter }}
         <span v-text="counter"></span> -->
         <!-- <p>{{ counter }} - count is {{ evenOrOdd }}</p> -->
@@ -12,17 +12,43 @@
             Ask a yes/no question:
             <input v-model="question">
         </p> -->
-        <!-- <p>{{ answer }}</p> -->
-        <p>Signal: {{ signal }}</p>
+        <div class="clearfix">
+          <div class="form-inline">
+            <input class="form-control" type="text" placeholder="filter list" v-model="term">
+            <button class="btn btn-warning" v-show="term" v-on:click="clearFilter()">×</button>
+            <br>
+          </div>
+          <i v-if="term">Filter: {{ term }}</i><br>
+        
+        <button class="btn btn-sm btn-success" v-on:click="playlist()">⯈⯈ Play all</button>
+        <div class="form-inline">
+          <input class="form-control" type="text" placeholder="add new video" v-model="newVideo">        
+          <button v-show="newVideo" class="btn btn-sm btn-success" v-on:click="addVideo()">+</button>
+        </div>
+        </div>
         <ul class="list-group" v-if="videos && videos.length">
-            <li class="list-group-item" v-for="(video, key, index) in videos" v-bind:key="video.id" v-bind:title="video.title">
-                <button v-if="video._id === currentVideoID && signal === 'playing'" class="btn btn-sm btn-danger" v-on:click="stop()">⏹</button>
+            <li class="list-group-item" v-for="(video, key, index) in search" v-bind:key="video.id" v-bind:title="video.title">
+                <!-- <button v-if="video._id === currentVideoID && signal === 'playing'" class="btn btn-sm btn-info" v-on:click="pause()">▮▮</button> -->
+                <button v-if="video._id === currentVideoID && (signal === 'playing' || signal === 'paused')" class="btn btn-sm btn-danger" v-on:click="stop()">⏹</button>
                 <button v-if="video._id !== currentVideoID" class="btn btn-sm btn-info" v-on:click="play(video._id)">⯈</button>
                 {{ key + 1 }} {{ index }} ~ {{ video.title }}
                 <!--  {{ video._id }}  -->
                 <!-- <a class="hover" href="#" v-on:click="play(video._id)">{{ video.title }}</a>  -->
             </li>
         </ul>
+    </div>
+    <div class="col-4">
+      <div>
+          <h5>Stats</h5>
+          <i>Player: {{ signal }}</i>
+          <!-- <div v-if="stats" v-for="stat in stats" v-bind:key="stat.key" v-bind:title="stat.value"></div> -->
+          <div v-if="errors.length">
+              <i>Errors:</i>
+              <div v-for="(error, index) in errors" v-bind:key="index">
+                  {{ index + 1 }} <span>{{ error }}</span>
+              </div>
+          </div>
+        </div>
     </div>
 </div>
 </template>
@@ -32,13 +58,17 @@
 // Vue.use(Vuex);
 import { mapGetters, mapActions } from "vuex";
 import axios from "axios";
+import qs from "qs";
 import { debounce } from "lodash";
 
 export default {
   data() {
     return {
       videos: [],
+      search: [],
       errors: [],
+      term: "",
+      newVideo: "IGUboLZx3Tk",
       status: "",
       lastUpdated: "",
       currentVideoID: "",
@@ -61,7 +91,7 @@ export default {
   async created() {
     try {
       const response = await axios.get("http://localhost:3000/api/videos");
-      this.videos = response.data;
+      this.videos = this.search = response.data;
       this.$store.commit("SOCKET_CONNECT");
     } catch (e) {
       this.errors.push(e);
@@ -77,9 +107,24 @@ export default {
       if (this.$store.state.signal === "stopped") {
         this.currentVideoID = null;
       }
+    },
+    term() {
+      this.search = this.videos;
+      this.filterByTerm();
+    },
+    newVideo() {
+      this.getVideo();
     }
   },
   methods: {
+    filterByTerm() {
+      let filterRegEx = RegExp(this.term, "gi");
+      this.search = this.search.filter(x => filterRegEx.test(x.title));
+    },
+    clearFilter() {
+      this.term = "";
+      this.search = this.videos;
+    },
     async play(videoID) {
       try {
         this.currentVideoID = videoID;
@@ -94,10 +139,50 @@ export default {
         this.errors.push(e);
       }
     },
+    async pause() {
+      // TODO: implement in API
+      try {
+        if (this.currentVideoID !== "") {
+          const pause = await axios.get(
+            "http://localhost:3000/api/player/pause"
+          );
+          this.$store.commit("SOCKET_USER_MESSAGE");
+        } else {
+          this.play(this.currentVideoID);
+        }
+      } catch (e) {
+        this.errors.push(e);
+      }
+    },
     async stop() {
       try {
         this.currentVideoID = null;
         const stop = await axios.get("http://localhost:3000/api/player/stop");
+        this.$store.commit("SOCKET_USER_MESSAGE");
+      } catch (e) {
+        this.errors.push(e);
+      }
+    },
+    async playlist() {
+      try {
+        const playlist = await axios.get(
+          "http://localhost:3000/api/player/playlist"
+        );
+        this.$store.commit("SOCKET_USER_MESSAGE");
+      } catch (e) {
+        this.errors.push(e);
+      }
+    },
+    getVideo() {
+      return this.newVideo;
+    },
+    async addVideo() {
+      try {
+        const yt = await axios.get(
+          "http://localhost:3000/api/videos/add/" + this.getVideo()
+        );
+        this.videos.push(yt.data);
+        this.clearFilter(); // add to search array
         this.$store.commit("SOCKET_USER_MESSAGE");
       } catch (e) {
         this.errors.push(e);
