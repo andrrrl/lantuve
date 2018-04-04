@@ -8,19 +8,16 @@ import * as io from 'socket.io-client'
 
 Vue.use(Vuex);
 
-let _client = null;
-// export type State = {
-//     messages: string[],
-//     count: any,
-//     isConnected: any
-// }
+Vue.config.productionTip = process.env.NODE_ENV === 'production';
+
+let server = Vue.config.productionTip ? 'http://192.168.4.31:3000' : 'http://localhost:3000';
 
 
 // Store
 export default new Vuex.Store({
-    plugins: [createSocketioPlugin('http://192.168.4.31:3000' || 'http://localhost:3000')],
+    plugins: [createSocketioPlugin(server)],
     state: {
-        API: [],
+        API: server,
         count: 0,
         isConnected: false,
         messages: ['hola...'],
@@ -28,7 +25,7 @@ export default new Vuex.Store({
     },
     created: {
         API() {
-            state.API = ['http://192.168.4.31', '3000']
+            state.API = server
         }
     },
     mutations: {

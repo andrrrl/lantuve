@@ -1,15 +1,20 @@
 import Vue from 'vue'
 import Vuex from "vuex";
+import VueSocketio from 'vue-socket.io';
 import BootstrapVue from 'bootstrap-vue'
 import App from './App.vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-import VueSocketio from 'vue-socket.io';
-Vue.use(VueSocketio, 'http://192.168.4.31:3000');
+Vue.config.productionTip = process.env.NODE_ENV === 'production';
+
+Vue.use(VueSocketio, (Vue.config.productionTip ? 'http://192.168.4.31:3000' : 'http://localhost:3000'));
 
 // Configs
-Vue.config.productionTip = false
+// Vue.config.productionTip = false
+
+console.log('Vue.config.productionTip', Vue.config.productionTip);
+
 Vue.use(BootstrapVue);
 
 Vue.use(Vuex);

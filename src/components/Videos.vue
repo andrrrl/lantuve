@@ -40,7 +40,8 @@
     <div class="col-4">
       <div>
           <h5>Stats</h5>
-          <i>Player: {{ signal }}</i>
+          <i>Player: {{ signal }}</i><br>
+          <i>Host: {{ this.$store.state.API }}</i>
           <!-- <div v-if="stats" v-for="stat in stats" v-bind:key="stat.key" v-bind:title="stat.value"></div> -->
           <div v-if="errors.length">
               <i>Errors:</i>
@@ -90,7 +91,7 @@ export default {
   },
   async created() {
     try {
-      const response = await axios.get(`http://192.168.4.31:3000/api/videos`);
+      const response = await axios.get(`${this.$store.state.API}/api/videos`);
       this.videos = this.search = response.data;
       this.$store.commit("SOCKET_CONNECT");
     } catch (e) {
@@ -129,7 +130,7 @@ export default {
       try {
         this.currentVideoID = videoID;
         const playing = await axios.get(
-          `http://192.168.4.31:3000/api/player/${videoID}/play`
+          `${this.$store.state.API}/api/player/${videoID}/play`
         );
         this.$store.commit("increment");
         this.$store.commit("SOCKET_USER_MESSAGE");
@@ -144,7 +145,7 @@ export default {
       try {
         if (this.currentVideoID !== "") {
           const pause = await axios.get(
-            `http://192.168.4.31:3000/api/player/pause`
+            `${this.$store.state.API}/api/player/pause`
           );
           this.$store.commit("SOCKET_USER_MESSAGE");
         } else {
@@ -158,7 +159,7 @@ export default {
       try {
         this.currentVideoID = null;
         const stop = await axios.get(
-          `http://192.168.4.31:3000/api/player/stop`
+          `${this.$store.state.API}/api/player/stop`
         );
         this.$store.commit("SOCKET_USER_MESSAGE");
       } catch (e) {
@@ -168,7 +169,7 @@ export default {
     async playlist() {
       try {
         const playlist = await axios.get(
-          `http://192.168.4.31:3000/api/player/playlist`
+          `${this.$store.state.API}/api/player/playlist`
         );
         this.$store.commit("SOCKET_USER_MESSAGE");
       } catch (e) {
@@ -181,7 +182,7 @@ export default {
     async addVideo() {
       try {
         const yt = await axios.get(
-          `http://192.168.4.31:3000/api/videos/add/${this.getVideo()}`
+          `${this.$store.state.API}/api/videos/add/${this.getVideo()}`
         );
         this.videos.push(yt.data);
         this.clearFilter(); // add to search array
