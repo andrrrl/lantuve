@@ -21,6 +21,8 @@
           <i v-if="term">Filter: {{ term }}</i><br>
         
         <button class="btn btn-sm btn-success" v-on:click="playlist()">⯈⯈ Play all</button>
+        <button class="btn btn-sm btn-warning" v-on:click="volume('up')">⏶</button>
+        <button class="btn btn-sm btn-warning" v-on:click="volume('down')">⏷</button>
         <div class="form-inline">
           <input class="form-control" type="text" placeholder="add new video" v-model="newVideo">        
           <button v-show="newVideo" class="btn btn-sm btn-success" placeholder="youtube vID" v-on:click="addVideo()">+</button>
@@ -28,6 +30,7 @@
         </div>
         <ul class="list-group" v-if="videos && videos.length">
             <li class="list-group-item" v-for="(video, key, index) in search" v-bind:key="video.id" v-bind:title="video.title">
+              <img class="w-25 pr-1" :src="video.img"> 
                 <!-- <button v-if="video._id === currentVideoID && signal === 'playing'" class="btn btn-sm btn-info" v-on:click="pause()">▮▮</button> -->
                 <button v-if="video._id === currentVideoID && (signal === 'playing' || signal === 'paused')" class="btn btn-sm btn-danger" v-on:click="stop()">⏹</button>
                 <button v-if="video._id !== currentVideoID" class="btn btn-sm btn-info" v-on:click="play(video._id)">⯈</button>
@@ -160,6 +163,16 @@ export default {
         this.currentVideoID = null;
         const stop = await axios.get(
           `${this.$store.state.API}/api/player/stop`
+        );
+        this.$store.commit("SOCKET_USER_MESSAGE");
+      } catch (e) {
+        this.errors.push(e);
+      }
+    },
+    async volume(change) {
+      try {
+        const pause = await axios.get(
+          `${this.$store.state.API}/api/player/volume/${change}`
         );
         this.$store.commit("SOCKET_USER_MESSAGE");
       } catch (e) {
